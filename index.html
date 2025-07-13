@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Ishita 🎉</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      height: 100%;
+    }
+    canvas {
+      display: block;
+    }
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      animation: glow 3s ease-in-out infinite alternate;
+      pointer-events: none;
+      text-align: center;
+      white-space: normal;
+      word-break: break-word;
+    }
+    @media (max-width: 600px) {
+      #message {
+        font-size: 2rem;
+      }
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff69b4; }
+      to { text-shadow: 0 0 20px #ff1493, 0 0 30px #ff1493, 0 0 40px #ff1493; }
+    }
+  </style>
+</head>
+<body>
+  <audio id="bg-music" autoplay loop>
+    <source src="https://cdn.pixabay.com/audio/2023/03/01/audio_7390a6ce32.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <canvas id="fireworks"></canvas>
+  <div id="message">Happy Birthday Ishita Devgan 🎂💖</div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const music = document.getElementById("bg-music");
+      document.body.addEventListener("click", () => {
+        if (music.paused) music.play();
+      }, { once: true });
+
+      const canvas = document.getElementById("fireworks");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      class Particle {
+        constructor(x, y, color, velocity, life) {
+          this.x = x;
+          this.y = y;
+          this.color = color;
+          this.velocity = velocity;
+          this.life = life;
+          this.opacity = 1;
+          this.size = Math.random() * 1 + 0.5;
+        }
+
+        update() {
+          this.velocity.x *= 0.985;
+          this.velocity.y *= 0.985;
+          this.x += this.velocity.x;
+          this.y += this.velocity.y;
+          this.velocity.y += 0.03;
+          this.life--;
+          this.opacity = this.life / 100;
+        }
+
+        draw() {
+          ctx.save();
+          ctx.globalAlpha = this.opacity;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.shadowColor = this.color;
+          ctx.shadowBlur = 15;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      const colors = ["#ff4b5c", "#ff9a00", "#00f5d4", "#8eecf5", "#d63484", "#ff5e78"];
+
+      function createHeartFirework(x, y) {
+        const particles = [];
+        for (let t = 0; t < Math.PI * 2; t += 0.04) {
+          const px = 16 * Math.pow(Math.sin(t), 3);
+          const py = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+          const velocity = {
+            x: px * (Math.random() * 0.5 + 0.4),
+            y: py * (Math.random() * 0.5 + 0.4)
+          };
+          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)], velocity, 100));
+        }
+        return particles;
+      }
+
+      function createStarFirework(x, y) {
+        const particles = [];
+        const spikes = 8;
+        for (let i = 0; i < spikes * 2; i++) {
+          const angle = (Math.PI * 2 / (spikes * 2)) * i;
+          const radius = i % 2 === 0 ? 10 : 5;
+          const velocity = {
+            x: radius * Math.cos(angle) * (Math.random() * 0.6 + 0.4),
+            y: radius * Math.sin(angle) * (Math.random() * 0.6 + 0.4)
+          };
+          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)], velocity, 100));
+        }
+        return particles;
+      }
+
+      function createCircleFirework(x, y) {
+        const particles = [];
+        const count = 60;
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 / count) * i;
+          const velocity = {
+            x: Math.cos(angle) * (Math.random() * 0.8 + 0.3) * 5,
+            y: Math.sin(angle) * (Math.random() * 0.8 + 0.3) * 5
+          };
+          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)], velocity, 100));
+        }
+        return particles;
+      }
+
+      function createFlowerFirework(x, y) {
+        const particles = [];
+        const petals = 12;
+        for (let i = 0; i < petals; i++) {
+          const angle = (Math.PI * 2 / petals) * i;
+          for (let j = 0; j < 3; j++) {
+            const velocity = {
+              x: Math.cos(angle) * (j + 1),
+              y: Math.sin(angle) * (j + 1)
+            };
+            particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)], velocity, 100));
+          }
+        }
+        return particles;
+      }
+
+      function createSpiralFirework(x, y) {
+        const particles = [];
+        const count = 100;
+        const spiralFactor = 0.2;
+        for (let i = 0; i < count; i++) {
+          const angle = i * 0.3;
+          const radius = spiralFactor * angle * 10;
+          const velocity = {
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+          };
+          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)], velocity, 100));
+        }
+        return particles;
+      }
+
+      let fireworks = [];
+
+      function animate() {
+        requestAnimationFrame(animate);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        fireworks.forEach((fw, i) => {
+          fw.forEach(p => {
+            p.update();
+            p.draw();
+          });
+          fireworks[i] = fw.filter(p => p.life > 0);
+        });
+
+        fireworks = fireworks.filter(fw => fw.length > 0);
+      }
+
+      let first = true;
+      setInterval(() => {
+        const x = Math.random() * canvas.width * 0.6 + canvas.width * 0.2;
+        const y = Math.random() * canvas.height * 0.4 + canvas.height * 0.2;
+        if (first) {
+          fireworks.push(createHeartFirework(x, y));
+          first = false;
+          return;
+        }
+        const rand = Math.random();
+        if (rand < 0.2) {
+          fireworks.push(createHeartFirework(x, y));
+        } else if (rand < 0.4) {
+          fireworks.push(createStarFirework(x, y));
+        } else if (rand < 0.6) {
+          fireworks.push(createCircleFirework(x, y));
+        } else if (rand < 0.8) {
+          fireworks.push(createFlowerFirework(x, y));
+        } else {
+          fireworks.push(createSpiralFirework(x, y));
+        }
+      }, 1600);
+
+      canvas.addEventListener("click", e => {
+        const x = e.clientX;
+        const y = e.clientY;
+        const rand = Math.random();
+        if (rand < 0.2) {
+          fireworks.push(createHeartFirework(x, y));
+        } else if (rand < 0.4) {
+          fireworks.push(createStarFirework(x, y));
+        } else if (rand < 0.6) {
+          fireworks.push(createCircleFirework(x, y));
+        } else if (rand < 0.8) {
+          fireworks.push(createFlowerFirework(x, y));
+        } else {
+          fireworks.push(createSpiralFirework(x, y));
+        }
+      });
+
+      animate();
+    });
+  </script>
+</body>
+</html>
